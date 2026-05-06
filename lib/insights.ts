@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+
+import { createOpenAIConnection } from "@/lib/openai-connection";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
@@ -111,12 +113,8 @@ const themeMatchers: Array<{ theme: string; test: RegExp }> = [
   { theme: "Politeness and social expressions", test: /please|polite|よろしく|よろしい|礼貌|formal|客气/i }
 ];
 
-function getClient() {
-  if (!process.env.OPENAI_API_KEY) {
-    return null;
-  }
-
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function getClient(): OpenAI | null {
+  return createOpenAIConnection();
 }
 
 function normalizeKey(value: string) {

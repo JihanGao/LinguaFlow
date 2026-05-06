@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
+import { createOpenAIConnection } from "@/lib/openai-connection";
 import { ChatMessage, Locale, TutorQualityMode, TutorResult } from "@/lib/types";
 
 const tutorSchema = z.object({
@@ -628,11 +629,7 @@ async function requestTutorCompletion(
 let client: OpenAI | null = null;
 
 function getClient() {
-  if (!process.env.OPENAI_API_KEY) {
-    return null;
-  }
-
-  client ??= new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  client ??= createOpenAIConnection();
   return client;
 }
 

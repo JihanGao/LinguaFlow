@@ -1,5 +1,7 @@
 import OpenAI from "openai";
 
+import { createOpenAIConnection } from "@/lib/openai-connection";
+
 import {
   THEME_CATEGORY_LABELS,
   allowedSubcategoriesForTheme,
@@ -297,9 +299,8 @@ async function classifyWordWithAI(args: {
   themeCategory: string;
   subCategory: string;
 } | null> {
-  if (!process.env.OPENAI_API_KEY) return null;
-
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const openai = createOpenAIConnection();
+  if (!openai) return null;
   const model = process.env.OPENAI_MODEL_DEFAULT || "gpt-4.1-mini";
 
   const term = args.term.slice(0, 80);

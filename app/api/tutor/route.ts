@@ -1,26 +1,8 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
-import { randomUUID } from "node:crypto";
-
 import { NextRequest, NextResponse } from "next/server";
 
 import { runTutorConversation } from "@/lib/openai";
+import { persistTutorScreenshot } from "@/lib/screenshot-upload";
 import { Locale, TutorQualityMode } from "@/lib/types";
-
-async function saveScreenshot(file: File) {
-  const bytes = Buffer.from(await file.arrayBuffer());
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(uploadsDir, { recursive: true });
-
-  const ext = path.extname(file.name) || ".png";
-  const filename = `${Date.now()}-${randomUUID()}${ext}`;
-  await writeFile(path.join(uploadsDir, filename), bytes);
-
-  return {
-    publicPath: `/uploads/${filename}`,
-    dataUrl: `data:${file.type || "image/png"};base64,${bytes.toString("base64")}`
-  };
-}
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
@@ -39,7 +21,7 @@ export async function POST(request: NextRequest) {
 
   for (const screenshot of screenshots) {
     if (screenshot instanceof File && screenshot.size > 0) {
-      const saved = await saveScreenshot(screenshot);
+      const saved = await persistTutorScreenshot(screenshot);
       screenshotPaths.push(saved.publicPath);
       newScreenshotPaths.push(saved.publicPath);
       screenshotDataUrls.push(saved.dataUrl);

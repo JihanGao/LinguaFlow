@@ -1,5 +1,7 @@
 import OpenAI from "openai";
 
+import { createOpenAIConnection } from "@/lib/openai-connection";
+
 /**
  * AI fallback when extraction from aiAnswer finds no example.
  */
@@ -10,9 +12,8 @@ export async function generateVocabularyExample(params: {
   summaryEn?: string;
   aiAnswer?: string;
 }): Promise<{ sentence: string; translation: string } | null> {
-  if (!process.env.OPENAI_API_KEY) return null;
-
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const openai = createOpenAIConnection();
+  if (!openai) return null;
   const model = process.env.OPENAI_MODEL_DEFAULT || "gpt-4.1-mini";
 
   const term = params.term.slice(0, 80);
